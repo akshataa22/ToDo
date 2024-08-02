@@ -2,17 +2,29 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Todo, fetchTodos, addTodo, updateTodo, deleteTodo } from "./service";
+import {
+  Box,
+  Button,
+  Container,
+  TextField,
+  Typography,
+  IconButton,
+  CircularProgress,
+} from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
-import SaveIcon from "@mui/icons-material/Save";
+import NoteIcon from '@mui/icons-material/Note';
 
 export default function Home() {
   const queryClient = useQueryClient();
   const [newTodo, setNewTodo] = useState("");
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
 
-  const { data: todosData, isLoading, isError } = useQuery<Todo[]>({
+  const {
+    data: todosData,
+    isLoading,
+    isError,
+  } = useQuery<Todo[]>({
     queryKey: ["todos"],
     queryFn: fetchTodos,
   });
@@ -80,84 +92,102 @@ export default function Home() {
 
   if (isError) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-between p-24">
-        Error
-      </main>
+      <Container>
+        <Typography variant="h5" align="center" color="error">
+          Error
+        </Typography>
+      </Container>
     );
   }
 
   if (isLoading) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-between p-24">
-        Loading...
-      </main>
+      <Container>
+        <Typography variant="h5" align="center">
+          <CircularProgress />
+        </Typography>
+      </Container>
     );
   }
 
   return (
-    <main
-      className="flex min-h-screen flex-col items-center"
-      style={{ backgroundColor: "#555", fontSize: "20px" }}
-    >
-      <h1
-        className="text-xl"
-        style={{
-          marginBottom: "12px",
-          marginTop: "10px",
-          fontSize: "20px",
-          textDecoration: "underline",
-        }}
-      >
+    <Container maxWidth="sm">
+      <Box mt={5} sx={{ backgroundColor: "#2c2c2c", borderRadius: 2, p: 3 }}>
+      <Box display="flex" alignItems="center" mb={2}>
+      <NoteIcon sx={{ mr: 1, fontSize:30 }} />
+      <Typography variant="h4" flexGrow={1} textAlign="center">
         TODOS Data
-      </h1>
-      <div className="flex flex-col ">
-        {todosData?.slice(0, 5).map((todo) => (
-          <div
-            style={{ borderBottom: "1px solid grey" }}
-            className="flex"
-            key={todo.id}
-          >
-            <h2 style={{ width: "150px" }}>{" " + todo.title}</h2>
-            <button
-              onClick={() => handleEditTodo(todo)}
-              style={{ marginRight: "10px" }}
+      </Typography>
+    </Box>
+        <Box>
+          {todosData?.map((todo) => (
+            <Box
+              key={todo.id}
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              mb={2}
+              borderBottom="1px solid grey"
+              pb={1}
             >
-              <EditIcon fontSize="large"/>
-            </button>
-            <button onClick={() => handleDeleteTodo(todo.id)}>
-              <DeleteIcon fontSize="large"/>
-            </button>
-          </div>
-        ))}
-      </div>
-      <div>
-        <input
-          type="text"
+              <Typography fontSize={16}>{todo.title}</Typography>
+              <Box>
+                <IconButton
+                  onClick={() => handleEditTodo(todo)}
+                  aria-label="edit"
+                  sx={{
+                    color: "grey",
+                    "&:hover": {
+                      borderRadius: "50%",
+                      backgroundColor: "black",
+                    },
+                  }}
+                >
+                  <EditIcon />
+                </IconButton>
+                <IconButton
+                  onClick={() => handleDeleteTodo(todo.id)}
+                  aria-label="delete"
+                  sx={{
+                    color: "grey",
+                    "&:hover": {
+                      borderRadius: "50%",
+                      backgroundColor: "black",
+                    },
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Box>
+            </Box>
+          ))}
+        </Box>
+        <TextField
+          fullWidth
+          variant="outlined"
+          label="New Todo"
           value={newTodo}
           onChange={(e) => setNewTodo(e.target.value)}
-          style={{
-            height: "35px",
-            color: "black",
-            marginBottom: "20px",
-            marginTop: "20px",
+          margin="normal"
+          InputProps={{
+            sx: {
+              color: "white",
+              fontSize: "16px",
+              height: "47px",
+              marginTop:'0',
+              padding: "2px",
+            },
           }}
         />
-        <button
-          style={{
-            height: "50px",
-            width: "140px",
-            border: "1px solid grey",
-            padding: "8px",
-            backgroundColor: "darkgrey",
-            marginLeft: "10px",
-            marginTop: "10px",
-            borderRadius: "5px",
-          }}
+        <Button
+          variant="contained"
+          color="primary"
           onClick={editingTodo ? handleUpdateTodo : handleAddTodo}
+          fullWidth
         >
           {editingTodo ? "Update Data" : "Add"}
-        </button>
-      </div>
-    </main>
+        </Button>
+      </Box>
+    </Container>
   );
 }
